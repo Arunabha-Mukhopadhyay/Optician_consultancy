@@ -6,6 +6,10 @@ import toast from 'react-hot-toast';
 export default function AdminCaseStudies() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '', industry: '', service: '', metric: '', summary: '', solution: '', results: ''
+  });
 
   const fetchData = async () => {
     try {
@@ -19,6 +23,19 @@ export default function AdminCaseStudies() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/case-studies', formData);
+      toast.success('Case study created successfully!');
+      setShowForm(false);
+      setFormData({ title: '', industry: '', service: '', metric: '', summary: '', solution: '', results: '' });
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create case study');
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this case study?')) return;
@@ -40,7 +57,48 @@ export default function AdminCaseStudies() {
           <h1 className="text-3xl font-extrabold text-white mb-1">Case Studies</h1>
           <p className="text-gray-400">{cases.length} case stud{cases.length !== 1 ? 'ies' : 'y'} in the database.</p>
         </div>
+        <button onClick={() => setShowForm(!showForm)} className="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+          {showForm ? 'Cancel' : '+ New Case Study'}
+        </button>
       </div>
+
+      {showForm && (
+        <div className="card mb-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="label">Title *</label>
+                <input type="text" className="input" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+              </div>
+              <div>
+                <label className="label">Industry *</label>
+                <input type="text" className="input" required value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} />
+              </div>
+              <div>
+                <label className="label">Service *</label>
+                <input type="text" className="input" required value={formData.service} onChange={(e) => setFormData({ ...formData, service: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Key Metric Highlight (e.g. "Saved $2M") *</label>
+                <input type="text" className="input" required value={formData.metric} onChange={(e) => setFormData({ ...formData, metric: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Summary / Problem *</label>
+                <textarea className="input" rows="2" required value={formData.summary} onChange={(e) => setFormData({ ...formData, summary: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Solution *</label>
+                <textarea className="input" rows="3" required value={formData.solution} onChange={(e) => setFormData({ ...formData, solution: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Results *</label>
+                <textarea className="input" rows="3" required value={formData.results} onChange={(e) => setFormData({ ...formData, results: e.target.value })} />
+              </div>
+            </div>
+            <button type="submit" className="bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-600">Publish Case Study</button>
+          </form>
+        </div>
+      )}
 
       {cases.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">

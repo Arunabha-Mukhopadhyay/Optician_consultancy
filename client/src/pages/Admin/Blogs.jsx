@@ -6,6 +6,10 @@ import toast from 'react-hot-toast';
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '', slug: '', excerpt: '', content: '', author: '', category: '', coverImage: ''
+  });
 
   const fetchData = async () => {
     try {
@@ -19,6 +23,19 @@ export default function AdminBlogs() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/blogs', formData);
+      toast.success('Blog created successfully!');
+      setShowForm(false);
+      setFormData({ title: '', slug: '', excerpt: '', content: '', author: '', category: '', coverImage: '' });
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create blog');
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this blog post?')) return;
@@ -50,7 +67,48 @@ export default function AdminBlogs() {
           <h1 className="text-3xl font-extrabold text-white mb-1">Blog Posts</h1>
           <p className="text-gray-400">{blogs.length} post{blogs.length !== 1 ? 's' : ''} in the database.</p>
         </div>
+        <button onClick={() => setShowForm(!showForm)} className="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+          {showForm ? 'Cancel' : '+ New Blog'}
+        </button>
       </div>
+
+      {showForm && (
+        <div className="card mb-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Title *</label>
+                <input type="text" className="input" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '') })} />
+              </div>
+              <div>
+                <label className="label">Slug *</label>
+                <input type="text" className="input" required value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} />
+              </div>
+              <div>
+                <label className="label">Author *</label>
+                <input type="text" className="input" required value={formData.author} onChange={(e) => setFormData({ ...formData, author: e.target.value })} />
+              </div>
+              <div>
+                <label className="label">Category *</label>
+                <input type="text" className="input" required value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Excerpt *</label>
+                <textarea className="input" rows="2" required value={formData.excerpt} onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Content (HTML/Text) *</label>
+                <textarea className="input" rows="6" required value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Cover Image URL</label>
+                <input type="text" className="input" value={formData.coverImage} onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })} />
+              </div>
+            </div>
+            <button type="submit" className="bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-600">Publish Blog</button>
+          </form>
+        </div>
+      )}
 
       {blogs.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">

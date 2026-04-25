@@ -5,6 +5,7 @@ import api from '../../utils/axios';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
+    projects: 0,
     consultations: 0,
     blogs: 0,
     caseStudies: 0,
@@ -16,7 +17,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [consRes, blogRes, csRes, esgRes, fbRes] = await Promise.allSettled([
+        const [projRes, consRes, blogRes, csRes, esgRes, fbRes] = await Promise.allSettled([
+          api.get('/projects'),
           api.get('/consultations'),
           api.get('/blogs'),
           api.get('/case-studies'),
@@ -25,6 +27,7 @@ export default function AdminDashboard() {
         ]);
 
         setStats({
+          projects: projRes.status === 'fulfilled' ? (projRes.value.data?.projects?.length || 0) : 0,
           consultations: consRes.status === 'fulfilled' ? (consRes.value.data?.total || consRes.value.data?.consultations?.length || 0) : 0,
           blogs: blogRes.status === 'fulfilled' ? (blogRes.value.data?.total || blogRes.value.data?.blogs?.length || 0) : 0,
           caseStudies: csRes.status === 'fulfilled' ? (csRes.value.data?.caseStudies?.length || 0) : 0,
@@ -41,6 +44,7 @@ export default function AdminDashboard() {
   }, []);
 
   const cards = [
+    { label: 'Projects', value: stats.projects, icon: '📋', color: 'text-blue-400', to: '/admin/projects' },
     { label: 'Consultations', value: stats.consultations, icon: '📅', color: 'text-orange-400', to: '/admin/consultations' },
     { label: 'Blog Posts', value: stats.blogs, icon: '✍️', color: 'text-violet-400', to: '/admin/blogs' },
     { label: 'Case Studies', value: stats.caseStudies, icon: '📁', color: 'text-emerald-400', to: '/admin/case-studies' },
@@ -74,11 +78,35 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Link to="/admin/projects" className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-orange-500/40 transition-all flex items-center gap-4">
+              <span className="text-3xl">📋</span>
+              <div>
+                <p className="text-white font-semibold">Manage Projects</p>
+                <p className="text-gray-400 text-sm">Create and update client projects</p>
+              </div>
+              <span className="ml-auto text-gray-500">→</span>
+            </Link>
             <Link to="/admin/consultations" className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-orange-500/40 transition-all flex items-center gap-4">
               <span className="text-3xl">📅</span>
               <div>
                 <p className="text-white font-semibold">Manage Consultations</p>
                 <p className="text-gray-400 text-sm">View, approve, and manage client bookings</p>
+              </div>
+              <span className="ml-auto text-gray-500">→</span>
+            </Link>
+            <Link to="/admin/blogs" className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-orange-500/40 transition-all flex items-center gap-4">
+              <span className="text-3xl">✍️</span>
+              <div>
+                <p className="text-white font-semibold">Manage Blogs</p>
+                <p className="text-gray-400 text-sm">Publish and edit blog posts</p>
+              </div>
+              <span className="ml-auto text-gray-500">→</span>
+            </Link>
+            <Link to="/admin/case-studies" className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-orange-500/40 transition-all flex items-center gap-4">
+              <span className="text-3xl">📁</span>
+              <div>
+                <p className="text-white font-semibold">Manage Case Studies</p>
+                <p className="text-gray-400 text-sm">Create and update success stories</p>
               </div>
               <span className="ml-auto text-gray-500">→</span>
             </Link>

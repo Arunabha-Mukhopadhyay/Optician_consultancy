@@ -40,6 +40,7 @@ const AdminBlogs = lazy(() => import('./pages/Admin/Blogs'));
 const AdminCaseStudies = lazy(() => import('./pages/Admin/CaseStudies'));
 const AdminFeedback = lazy(() => import('./pages/Admin/Feedback'));
 const AdminEsgResults = lazy(() => import('./pages/Admin/EsgResults'));
+const AdminProjects = lazy(() => import('./pages/Admin/Projects'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -110,6 +111,7 @@ export default function App() {
           <Route path="/admin/case-studies" element={<AdminRoute><DashboardLayout><AdminCaseStudies /></DashboardLayout></AdminRoute>} />
           <Route path="/admin/feedback" element={<AdminRoute><DashboardLayout><AdminFeedback /></DashboardLayout></AdminRoute>} />
           <Route path="/admin/esg-results" element={<AdminRoute><DashboardLayout><AdminEsgResults /></DashboardLayout></AdminRoute>} />
+          <Route path="/admin/projects" element={<AdminRoute><DashboardLayout><AdminProjects /></DashboardLayout></AdminRoute>} />
 
           {/* 404 */}
           <Route path="*" element={<PublicLayout><NotFound /></PublicLayout>} />

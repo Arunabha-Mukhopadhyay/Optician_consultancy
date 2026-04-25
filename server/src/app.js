@@ -16,10 +16,25 @@ import projectRoutes from './routes/project.routes.js';
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  'https://optician-consultancy-2.onrender.com',
+  'http://localhost:5173',   // Vite dev server
+  'http://localhost:3000',
+];
+
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin(origin, callback) {
+    // allow requests with no origin (curl, server-to-server, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());

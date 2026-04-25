@@ -64,3 +64,9 @@ export const logout = asyncHandler(async (req, res) => {
 export const getMe = asyncHandler(async (req, res) => {
   res.json({ success: true, user: req.user });
 });
+
+// GET /api/auth/users — Admin: get all users for dropdowns
+export const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({ role: 'client' }).select('name email company').sort({ createdAt: -1 });
+  res.json({ success: true, users });
+});

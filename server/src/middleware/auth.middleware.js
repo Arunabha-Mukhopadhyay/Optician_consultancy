@@ -24,6 +24,21 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Optional JWT verification for public routes
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+  let token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return next();
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (user) req.user = user;
+    next();
+  } catch (err) {
+    next();
+  }
+});
+
 // Restrict to admin role only
 export const isAdmin = (req, res, next) => {
   if (req.user?.role !== 'admin') {
